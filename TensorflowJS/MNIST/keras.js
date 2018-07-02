@@ -1,19 +1,46 @@
 const IMAGE_SIZE = 28;
 
+// labels = {}
+
 let mnistModel;
-const mnist = tf.loadModel("http://localhost:63342/DeepLearningPlayground/TensorflowJS/MNIST/tfjsmodel/model.json").then(function (model) {
+const mnist = tf.loadModel("http://localhost:63342/Python/TensorflowJS/MNIST/tfjsmodel/model.json").then(function (model) {
     mnistModel = model;
     const image = document.getElementById('img');
     predictImage(image);
 });
 
+function predictFromTensor(tensor) {
+    let logits = mnistModel.predict(tensor);
+    logits.data().then(function (data) {
+        probabilities = Array.prototype.slice.call(data);
+        labelIndex = argMax(probabilities);
+        probability = probabilities[labelIndex];
+        console.log("Detected number: " + labelIndex +
+            " with probability of: " + probability * 100 + " %");
+
+        $("#prediction-label").text(labelIndex);
+        $("#prediction-probability").text(probability * 100);
+    });
+}
+
 function predictImage(img) {
     tensor = convertToTensor(img);
-    //console.log(tensor);
-    let result = mnistModel.predict(tensor);
-    result.print();
-    //tf.argMax(result).print();
+    predictFromTensor(tensor);
 }
+
+function argMax(array) {
+    return array.map((x, i) => [x, i]).reduce((r, a) => (a[0] > r[0] ? a : r))[1];
+}
+
+function predictFromCanvas(canv) {
+    //get image data
+    const ctx = canv.getContext("2d");
+    imageData = ctx.getImageData(0, 0, 200, 200);
+    //convert to tensor
+    tensor = convertToTensor(imageData);
+    predictFromTensor(tensor);
+}
+
 
 function convertToTensor(img) {
     if (!(img instanceof tf.Tensor)) {
@@ -40,17 +67,29 @@ function readUrl(input) {
     }
 }
 
-$(function(){
+$(function () {
     $("#imageUpload").change(function () {
-     let imageUpload = document.getElementById("imageUpload");
-     if (imageUpload.files.length > 0) {
-         $("#txtSelectedFile").val(imageUpload.files[0].name);
-     }
-     readUrl(this);
+        let imageUpload = document.getElementById("imageUpload");
+        if (imageUpload.files.length > 0) {
+            $("#txtSelectedFile").val(imageUpload.files[0].name);
+        }
+        readUrl(this);
     });
 
-    $("#img").on("load", function(){
+    $("#img").on("load", function () {
         console.log("image loaded");
-       predictImage(document.getElementById("img"));
+        predictImage(document.getElementById("img"));
     });
+
+    $("#btnPredictCanvas").click(function () {
+        let canvas = $("canvas")[0];
+        predictFromCanvas(canvas);
+    });
+
+    $("#btnClearCanvas").click(function () {
+        let canvas = $("canvas")[0];
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearTo("#000000");
+    })
 });

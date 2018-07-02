@@ -3,18 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/bootstrap-theme.css">
 </head>
 <body>
-<script src="jquery-3.3.1.min.js"></script>
+<div class="container">
+    <div class="jumbotron">
+        <h1>Tensorflow JS Demo</h1>
+        <h3>
+            Prediction: <span id="prediction-label"></span><br/>
+            Probability: <span id="prediction-probability"></span>%
+        </h3>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <img id="img" src="1.JPG" class="img-responsive img-thumbnail"/>
+                <div class="form-group">
+                    <label>Select image to predict</label>
+                    <input type="file" id="imageUpload" class="form-control" accept="image/*"/>
+                </div>
+            </div>
+            <div class="col-sm-6">
+            </div>
+        </div>
+        <div id="canvas">Click to draw<br/></div>
+        <button id="btnPredictCanvas" type="button" class="btn btn-primary">Predict</button>
+        <button id="btnClearCanvas" type="button" class="btn btn-primary">Clear</button>
+    </div>
+
+</div>
+<script src="js/jquery-3.3.1.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.11.7"></script>
 <script src="keras.js"></script>
-
-<div class="container">
-    <img id="img" src="1.JPG" width="200" height="200"/>
-    <div class="form-group">
-        <label>Image Upload</label>
-        <input type="file" id="imageUpload"/>
-    </div>
-</div>
+<script src="canvas.js"></script>
 </body>
 </html>
