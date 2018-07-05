@@ -3,7 +3,7 @@ const IMAGE_SIZE = 28;
 // labels = {}
 
 let mnistModel;
-const mnist = tf.loadModel("http://localhost:63342/Python/TensorflowJS/MNIST/tfjsmodel/model.json").then(function (model) {
+const mnist = tf.loadModel("http://localhost:63342/DeepLearningPlayground/TensorflowJS/MNIST/tfjsmodel/model.json").then(function (model) {
     mnistModel = model;
     const image = document.getElementById('img');
     predictImage(image);
@@ -12,6 +12,7 @@ const mnist = tf.loadModel("http://localhost:63342/Python/TensorflowJS/MNIST/tfj
 function predictFromTensor(tensor) {
     let logits = mnistModel.predict(tensor);
     logits.data().then(function (data) {
+        console.log(data);
         probabilities = Array.prototype.slice.call(data);
         labelIndex = argMax(probabilities);
         probability = probabilities[labelIndex];
