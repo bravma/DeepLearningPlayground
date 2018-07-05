@@ -12,10 +12,8 @@ from keras.layers import Dense, Dropout, Flatten
 from keras.layers import Conv2D, MaxPooling2D
 from keras import backend as K
 import tensorflowjs as tfjs
-import numpy as np
-import matplotlib.pyplot as plt
-
-# model = keras.models.load_model("Keras-MNIST")
+from keras_applications import inception_v3
+from nets import inception_v3
 
 batch_size = 128
 num_classes = 10
@@ -48,23 +46,13 @@ print(x_test.shape[0], 'test samples')
 y_train = keras.utils.to_categorical(y_train, num_classes)
 y_test = keras.utils.to_categorical(y_test, num_classes)
 
-model = Sequential()
-model.add(Conv2D(32, kernel_size=(3, 3),
-                 activation='relu',
-                 input_shape=input_shape))
-model.add(Conv2D(64, (3, 3), activation='relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.25))
-model.add(Flatten())
-model.add(Dense(128, activation='relu'))
-model.add(Dropout(0.5))
-model.add(Dense(num_classes, activation='softmax'))
+model = inception_v3.inception_v3(
+    inputs=x_train,
+    num_classes=10,
+    is_training=True
+)
 
-model.compile(loss=keras.losses.categorical_crossentropy,
-              optimizer=keras.optimizers.Adadelta(),
-              metrics=['accuracy'])
-
-hist = model.fit(x_train, y_train,
+model.fit(x_train, y_train,
           batch_size=batch_size,
           epochs=epochs,
           verbose=1,
@@ -74,5 +62,3 @@ print('Test loss:', score[0])
 print('Test accuracy:', score[1])
 model.save("Keras-MNIST")
 tfjs.converters.save_keras_model(model, "tfjsmodel")
-
-# plot history
