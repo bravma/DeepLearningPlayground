@@ -5,15 +5,12 @@ Gets to 99.25% test accuracy after 12 epochs
 '''
 
 from __future__ import print_function
+
 import keras
+from keras import backend as K, Model
+from keras.applications import InceptionV3
 from keras.datasets import mnist
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Flatten
-from keras.layers import Conv2D, MaxPooling2D
-from keras import backend as K
-import tensorflowjs as tfjs
-from keras_applications import inception_v3
-from nets import inception_v3
+from keras.layers import Dense, GlobalAveragePooling2D
 
 batch_size = 128
 num_classes = 10
@@ -46,13 +43,35 @@ print(x_test.shape[0], 'test samples')
 y_train = keras.utils.to_categorical(y_train, num_classes)
 y_test = keras.utils.to_categorical(y_test, num_classes)
 
-model = inception_v3.inception_v3(
-    inputs=x_train,
-    num_classes=10,
-    is_training=True
-)
+# Load inception v3 model and load it with it's pretrained weights
+# Exclude final fully connected layer
+inception_base_model = InceptionV3(weights="imagenet", include_top=False)  # Excludes final FC layer
+num_fc_neurons = 1024
 
-model.fit(x_train, y_train,
+# Define the layers in the new classification prediction
+x = inception_base_model.output
+x = GlobalAveragePooling2D(x)
+x = Dense(num_fc_neurons, activation="relu")(x)  # new FC layer, random init
+predictions = Dense(num_classes, activation="softmax")(x)  # New Softmax layer
+
+model = Model(inputs=inception_base_model.input, output=predictions)
+
+#  Transfer Learning with fine tuning
+# Retrain the end few layers (called the top layers) of the inception model
+print("\nPerforming Transfer Learning")
+
+# Freeze layers
+layers_to_freeze = 172
+for layer in inception_base_model.layers[:layers_to_freeze]:
+    layer.trainable = False
+for layer in inception_base_model.layers[layers_to_freeze:]:
+    layer.trainable = True
+
+model.compile(loss=keras.losses.categorical_crossentropy,
+              optimizer=keras.optimizers.Adadelta(),
+              metrics=['accuracy'])
+
+hist = model.fit(x_train, y_train,
           batch_size=batch_size,
           epochs=epochs,
           verbose=1,
@@ -61,4 +80,5 @@ score = model.evaluate(x_test, y_test, verbose=0)
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
 model.save("Keras-MNIST")
-tfjs.converters.save_keras_model(model, "tfjsmodel")
+# Save transfer learning model
+model.save("inceptionv3-transfer-learning.model")

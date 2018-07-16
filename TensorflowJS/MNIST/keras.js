@@ -1,7 +1,5 @@
 const IMAGE_SIZE = 28;
 
-// labels = {}
-
 let mnistModel;
 const mnist = tf.loadModel("http://localhost:63342/Python/TensorflowJS/MNIST/tfjsmodel/model.json").then(function (model) {
     mnistModel = model;
@@ -60,7 +58,6 @@ function readUrl(input) {
     if (input.files && input.files[0]) {
         let reader = new FileReader();
         reader.onload = function (e) {
-
             $("#img").attr("src", e.target.result);
         };
         reader.readAsDataURL(input.files[0]);

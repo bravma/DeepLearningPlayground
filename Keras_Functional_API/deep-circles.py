@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import os
 
 from keras.models import Sequential
-from keras.layers import Dense
+from keras.layers import Dense, K
 from keras.optimizers import Adam
 from keras.utils import plot_model
 from keras.models import Model
@@ -50,7 +50,6 @@ def plot_decision_boundary(model, X, y):
 X, y = make_circles(n_samples=1000, factor=0.6, noise=0.1, random_state=42)
 # pl = plot_data(plt, X, y)
 # pl.show()
-
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
