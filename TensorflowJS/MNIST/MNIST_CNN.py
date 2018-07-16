@@ -11,6 +11,7 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten
 from keras.layers import Conv2D, MaxPooling2D
 from keras import backend as K
+from keras.callbacks import TensorBoard
 import tensorflowjs as tfjs
 import numpy as np
 import matplotlib.pyplot as plt
@@ -19,7 +20,7 @@ import matplotlib.pyplot as plt
 
 batch_size = 128
 num_classes = 10
-epochs = 1
+epochs = 5
 
 # input image dimensions
 img_rows, img_cols = 28, 28
@@ -64,15 +65,19 @@ model.compile(loss=keras.losses.categorical_crossentropy,
               optimizer=keras.optimizers.Adadelta(),
               metrics=['accuracy'])
 
+tensorboard_callback = TensorBoard(log_dir='./Log', histogram_freq=0,
+          write_graph=True, write_images=True)
+
 hist = model.fit(x_train, y_train,
           batch_size=batch_size,
           epochs=epochs,
           verbose=1,
-          validation_data=(x_test, y_test))
+          validation_data=(x_test, y_test),
+          callbacks=[tensorboard_callback])
 score = model.evaluate(x_test, y_test, verbose=0)
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
-model.save("Keras-MNIST")
-tfjs.converters.save_keras_model(model, "tfjsmodel")
+model.save("Keras-MNIST2")
+tfjs.converters.save_keras_model(model, "tfjsmodel2")
 
 # plot history
